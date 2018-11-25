@@ -7,6 +7,7 @@
 
 
 int PIN_boardLed = D7; // On-board LED
+float InternalTemperature = 0;
 
 // We start with the setup function.
 
@@ -20,6 +21,7 @@ void setup()
 
   // Publish that we've rebooted
   Particle.publish("DeviceStatus","boot",60,PUBLIC);
+  Particle.variable ("InternalTemperature", InternalTemperature);
   }
 
 
@@ -28,6 +30,19 @@ void setup()
 void loop()
   {
   digitalWrite(PIN_boardLed, HIGH);
-  Delay
-
+  delay(500);
+  digitalWrite(PIN_boardLed, LOW);
+  delay(500);
+  digitalWrite(PIN_boardLed, HIGH);
+  delay(500);
+  digitalWrite(PIN_boardLed, LOW);
+  delay(500);
+  digitalWrite(PIN_boardLed, HIGH);
+  delay(500);
+  digitalWrite(PIN_boardLed, LOW);
+  delay(500);
+  int temperature = random (0,100);
+  int temp_dec = random(0,9);
+  InternalTemperature = temperature + (float)(temp_dec)/10;
+  Particle.publish("InternalTemperature", String(InternalTemperature),60,PUBLIC);
   }
