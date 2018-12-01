@@ -29,7 +29,8 @@ void setup()
 
   // set the Conversion Rate (how quickly the sensor gets a new reading)
   //0-3: 0:0.25Hz, 1:1Hz, 2:4Hz, 3:8Hz
-  _temp_sensor.setConversionRate(2);
+  _temp_sensor.setConversionRate(1);
+  _temp_sensor.wakeup();
 
   // Publish that we've rebooted
   Particle.publish("DeviceStatus","boot",60,PUBLIC);
@@ -41,25 +42,32 @@ void setup()
 
 void loop()
   {
-  digitalWrite(PIN_boardLed, HIGH);
-  delay(500);
-  digitalWrite(PIN_boardLed, LOW);
-  delay(500);
-  digitalWrite(PIN_boardLed, HIGH);
-  delay(500);
-  digitalWrite(PIN_boardLed, LOW);
-  delay(500);
-  digitalWrite(PIN_boardLed, HIGH);
-  delay(500);
-  digitalWrite(PIN_boardLed, LOW);
-  delay(500);
-  double shift = (double)random(0,999)/1000.0;
-  bool posneg = random(1,100) >= 50;
-  // Turn sensor on to start temperature measurement.
-  // Current consumtion typically ~10uA.
-  _temp_sensor.wakeup();
-  InternalTemperature = _temp_sensor.readTempF();
-  _temp_sensor.sleep();
+  if (Particle.connected())
+    {
+    // Turn the on-board LED on while we;re processing.
+    digitalWrite(PIN_boardLed, HIGH);
+    _temp_sensor.wakeup();	// Wakeup and start running in normal power mode
+    // Turn sensor on to start temperature measurement.
+    // Current consumtion typically ~10uA.
+    InternalTemperature = _temp_sensor.readTempF() - 10.19889; // Correction factor due to getting odd reading
+    _temp_sensor.sleep();	// Switch sensor to low power mode
 
-  Particle.publish("InternalTemperature", String(InternalTemperature),60,PUBLIC);
+    Particle.publish("InternalTemperature", String(InternalTemperature),60,PUBLIC);
+
+    // Make sure the on-board LED is on for at least 500ms
+    delay(500);
+    digitalWrite(PIN_boardLed, LOW);
+    }
+    // Stay awake for another 30 seconds to round out to 5 minutes
+    delay((28 * 1000) + 500);
+    // Flash the LED to let us know we're going to sleep
+    for (int i = 0; i < 10; ++i)
+      {
+      digitalWrite(PIN_boardLed, HIGH);
+      delay(50);
+      digitalWrite(PIN_boardLed, LOW);
+      delay(50);
+      }
+    // Put the device to sleep for 4 minutes, 30 seconds.
+    Particle.sleep (SLEEP_MODE_DEEP, ((60*4)+30));
   }
