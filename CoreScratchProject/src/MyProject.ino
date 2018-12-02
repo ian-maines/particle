@@ -64,8 +64,7 @@ void setup()
         _temp_sensor.sleep();	// Switch sensor to low power mode
 
         // Publish that we've rebooted
-        Particle.publish("DeviceStatus","boot",60,PUBLIC);
-        Particle.publish("LowPowerMode",String(_bLowPower),60,PUBLIC);
+        Particle.publish(String::format("%s::LowPowerMode",_me),String(_bLowPower),60,PUBLIC);
         Particle.publish (String::format("%s::LastResetReason",_me),String(System.resetReason()),60,PUBLIC);
         Particle.variable ("InsideTemp", InternalTemperature);
     }
