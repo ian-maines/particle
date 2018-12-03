@@ -15,10 +15,13 @@ int PIN_boardLed = D7; // On-board LED
 int PIN_LowPowerEnable = D3;
 
 // Exposed variable Configurations
-double InternalTemperature = 999;   // Start with something easily identifyable as not having been measured
+double InternalTemperature = 0;   // Start with something easily identifyable as not having been measured
 
 // Global variables
 TMP102 _temp_sensor (0x48); // Default address initialization
+// When true, device sleeps and only takes measurements every ~5 minutes.
+// When false, device takes intervals every ~10 seconds (or 5 minutes depending on config)
+// and does not sleep. (primarily used for debugging).
 bool _bLowPower = true; // enabled by default
 
 // Device name.
@@ -40,19 +43,6 @@ void setup()
 
         // Configure the LED pin
         pinMode(PIN_boardLed,OUTPUT); // Our on-board LED is output as well
-        // Configure the LED pin
-        pinMode(PIN_LowPowerEnable,INPUT_PULLUP); // Our on-board LED is output as well
-        _bLowPower = digitalRead(PIN_LowPowerEnable) == HIGH;
-        // Flash the LED if low power mode is enabled
-        if (_bLowPower)
-            {
-            for (int i = 0; i < 20; ++i)
-                {
-                digitalWrite(PIN_boardLed, (i%2)?HIGH:LOW);
-                delay(50);
-                }
-            }
-
         // Turn the LED on
         digitalWrite(PIN_boardLed,HIGH);
 
@@ -63,9 +53,21 @@ void setup()
         _temp_sensor.setConversionRate(3);
         _temp_sensor.sleep();	// Switch sensor to low power mode
 
+        // Configure the Low Power pin
+        pinMode(PIN_LowPowerEnable,INPUT_PULLUP); // Our on-board LED is output as well
+        _bLowPower = digitalRead(PIN_LowPowerEnable) == HIGH;
+        // Flash the LED if low power mode is enabled
+        if (_bLowPower)
+            {
+            for (int i = 0; i < 10; ++i)
+                {
+                digitalWrite(PIN_boardLed, (i%2==0)?HIGH:LOW); delay(50);
+                }
+            }
+
         // Publish that we've rebooted
-        Particle.publish(String::format("%s::LowPowerMode",_me),String(_bLowPower),60,PUBLIC);
-        Particle.publish (String::format("%s::LastResetReason",_me),String(System.resetReason()),60,PUBLIC);
+        Particle.publish(String::format("%s::LowPowerMode",_me.c_str()),String(_bLowPower),60,PUBLIC);
+        Particle.publish (String::format("%s::LastResetReason",_me.c_str()),String(System.resetReason()),60,PUBLIC);
         Particle.variable ("InsideTemp", InternalTemperature);
     }
 
@@ -83,7 +85,13 @@ void loop()
                 // With 8hz rate, reading every 125ms, 250 should be safe.
                 delay(250);
                 // Correction factor due to sensor possibly being old/having drifted?
-                InternalTemperature = _temp_sensor.readTempF() - 6.69889;
+                // Unable to use a consistent sensor correction factor. Drifing all over the place or am I using incorrectly?
+                const auto actual_f = _temp_sensor.readTempF();
+                const auto actual_c = _temp_sensor.readTempC();
+                Particle.publish (String::format("%s::ReadTemps",_me.c_str()),
+                                  String::format("F=%f,C=%f",actual_f,actual_c),
+                                  60,PUBLIC);
+                InternalTemperature = actual_f - 18;
                 _temp_sensor.sleep();	// Switch sensor to low power mode
 
                 Particle.publish("InternalTemperature", String(InternalTemperature),60,PUBLIC);
@@ -92,15 +100,16 @@ void loop()
                 delay(250);
                 digitalWrite(PIN_boardLed, LOW);
             }
-        // Stay awake for another 30 seconds to round out to 5 minutes
-        delay((28 * 1000) + 500);
         // Depending on power mode config, delay or put the device to sleep for 4 minutes, 30 seconds.
         if (_bLowPower)
             {
+            // Stay awake for another 30 seconds to round out to 5 minutes
+            delay((28 * 1000) + 500);
             Particle.sleep (SLEEP_MODE_DEEP, ((60*4)+30));
             }
         else
             {
-            delay (((60*4)+30) * 1000);
+            // delay (((60*4)+30) * 1000);
+            delay (10 * 1000 - 250);  // Take measurements ~ every 10 seconds
             }
     }
