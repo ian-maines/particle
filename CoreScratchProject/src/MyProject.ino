@@ -5,6 +5,8 @@
 // This app generates bogus temperature and humidity data for testing various integrations
 // (ie AWS IoT, IFTTT)
 
+#include <vector>
+
 #include <Wire.h>
 #include "SparkFunTMP102.h"
 
@@ -87,10 +89,19 @@ void loop()
                 // Correction factor due to sensor possibly being old/having drifted?
                 // Unable to use a consistent sensor correction factor. Drifing all over the place or am I using incorrectly?
                 const auto actual_f = _temp_sensor.readTempF();
-                const auto actual_c = _temp_sensor.readTempC();
-                Particle.publish (String::format("%s::ReadTemps",_me.c_str()),
-                                  String::format("F=%f,C=%f",actual_f,actual_c),
-                                  60,PUBLIC);
+
+                std::vector<float> temp_readings;
+                for (char i = 0; i < 100; ++i)
+                    {
+                    temp_readings.push_back(_temp_sensor.readTempF());
+                    }
+                String LongFormat;
+                for (const auto& temp : temp_readings)
+                    {
+                    LongFormat += String::format("%f,",temp);
+                    }
+
+                Particle.publish (String::format("%s::ReadTemps:",_me.c_str()),LongFormat,60,PUBLIC);
                 InternalTemperature = actual_f - 18;
                 _temp_sensor.sleep();	// Switch sensor to low power mode
 
