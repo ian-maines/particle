@@ -84,9 +84,9 @@ void loop()
                 digitalWrite(PIN_boardLed, HIGH);
 
                 // Measure Relative Humidity from the HTU21D or Si7021
-                InternalHumidity = _sensor.getRH();
+                InternalHumidity = _sensor.getRH() + 2;
                 // Measure Temperature from the HTU21D or Si7021
-                InternalTemperature = _sensor.getTempF();
+                InternalTemperature = _sensor.readTempF() -6.75;
 
                 Particle.publish(String::format("%s::InternalTemperature", _me.c_str()), String(InternalTemperature),60,PUBLIC);
                 Particle.publish(String::format("%sInternalHumidity", _me.c_str()), String(InternalHumidity),60,PUBLIC);

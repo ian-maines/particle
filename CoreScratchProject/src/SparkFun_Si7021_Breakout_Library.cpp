@@ -61,7 +61,7 @@ return false;
 float Weather::getRH()
 {
 	// Measure the relative humidity
-	uint16_t RH_Code = makeMeasurment(HUMD_MEASURE_NOHOLD);
+	uint32_t RH_Code = makeMeasurment(HUMD_MEASURE_HOLD);
 	float result = (125.0*RH_Code/65536)-6;
 	return result;
 }
@@ -69,7 +69,7 @@ float Weather::getRH()
 float Weather::readTemp()
 {
 	// Read temperature from previous RH measurement.
-	uint16_t temp_Code = makeMeasurment(TEMP_PREV);
+	uint32_t temp_Code = makeMeasurment(TEMP_PREV);
 	float result = (175.72*temp_Code/65536)-46.85;
 	return result;
 }
@@ -77,7 +77,7 @@ float Weather::readTemp()
 float Weather::getTemp()
 {
 	// Measure temperature
-	uint16_t temp_Code = makeMeasurment(TEMP_MEASURE_NOHOLD);
+	uint32_t temp_Code = makeMeasurment(TEMP_MEASURE_HOLD);
 	float result = (175.72*temp_Code/65536)-46.85;
 	return result;
 }
@@ -179,7 +179,7 @@ uint16_t Weather::makeMeasurment(uint8_t command)
 	// When not using clock stretching (*_NOHOLD commands) delay here
 	// is needed to wait for the measurement.
 	// According to datasheet the max. conversion time is ~22ms
-	 delay(23);
+	delay(23);
 
 	Wire.requestFrom(ADDRESS,nBytes);
 	if(Wire.available() != nBytes)
