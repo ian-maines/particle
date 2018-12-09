@@ -17,8 +17,8 @@ int PIN_boardLed = D7; // On-board LED
 int PIN_LowPowerEnable = D3;
 
 // Exposed variable Configurations
-float InternalTemperature = 0;   // Start with something easily identifyable as not having been measured
-float InternalHumidity = 0;
+double InternalTemperature = 0;   // Start with something easily identifyable as not having been measured
+double InternalHumidity = 0;
 
 // Global variables
 //Create Instance of HTU21D or SI7021 temp and humidity sensor and MPL3115A2 barrometric sensor
@@ -54,6 +54,8 @@ void setup()
             {
 
             }
+        // Disable the heater
+        _sensor.heaterOff();
 
         // Configure the Low Power pin
         pinMode(PIN_LowPowerEnable,INPUT_PULLUP); // Our on-board LED is output as well
@@ -82,9 +84,9 @@ void loop()
                 digitalWrite(PIN_boardLed, HIGH);
 
                 // Measure Relative Humidity from the HTU21D or Si7021
-                InternalHumidity = sensor.getRH();
+                InternalHumidity = _sensor.getRH();
                 // Measure Temperature from the HTU21D or Si7021
-                InternalTemperature = sensor.getTempF();
+                InternalTemperature = _sensor.getTempF();
 
                 Particle.publish(String::format("%s::InternalTemperature", _me.c_str()), String(InternalTemperature),60,PUBLIC);
                 Particle.publish(String::format("%sInternalHumidity", _me.c_str()), String(InternalHumidity),60,PUBLIC);
