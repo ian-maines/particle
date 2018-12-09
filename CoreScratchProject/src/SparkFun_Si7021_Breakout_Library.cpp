@@ -1,11 +1,11 @@
 /*
- SparkFun Si7021 Temperature and HUmidity Breakout 
+ SparkFun Si7021 Temperature and HUmidity Breakout
  By: Joel Bartlett
  SparkFun Electronics
  Date: December 10, 2015
- 
+
  This is an Arduino library for the Si7021 Temperature and Humidity Sensor Breakout
- 
+
  This library is based on the following libraries:
 
  HTU21D Temperature / Humidity Sensor Library
@@ -30,13 +30,8 @@
  <http://www.gnu.org/licenses/>.
  */
 
-#if defined(ARDUINO)
 #include "Wire.h"
 #include "SparkFun_Si7021_Breakout_Library.h"
-#elif defined(SPARK)
-#include "SparkFun_Si7021_Breakout_Library/SparkFun_Si7021_Breakout_Library.h"
-#endif
-
 
  //Initialize
  Weather::Weather(){}
@@ -56,19 +51,8 @@
   else
     x = 0;
 
-  if(x == 1)
-  {
-    Serial.println("Si7021 Found");
-    //Serial.println(ID_Temp_Hum, HEX);
-  }
-  else if(x == 2)
-  {
-    Serial.println("HTU21D Found");
-    //Serial.println(ID_Temp_Hum, HEX);
-  }
-  else
-  	Serial.println("No Devices Detected");
-  	//Serial.println(ID_Temp_Hum, HEX);
+if (x) return true;
+return false;
 }
 
 /****************Si7021 & HTU21D Functions**************************************/
@@ -196,7 +180,7 @@ uint16_t Weather::makeMeasurment(uint8_t command)
 	// is needed to wait for the measurement.
 	// According to datasheet the max. conversion time is ~22ms
 	 delay(23);
-	
+
 	Wire.requestFrom(ADDRESS,nBytes);
 	if(Wire.available() != nBytes)
   	return 100;
