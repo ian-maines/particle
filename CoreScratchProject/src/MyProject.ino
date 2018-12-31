@@ -8,7 +8,7 @@
 #include <vector>
 
 #include <Wire.h>
-#include "SparkFunTMP102.h"
+#include "SparkFun_Si7021_Breakout_Library.h"
 
 // Pin Configurations
 int PIN_boardLed = D7; // On-board LED
@@ -18,12 +18,11 @@ int PIN_LowPowerEnable = D3;
 
 // Exposed variable Configurations
 double InternalTemperature = 0;   // Start with something easily identifyable as not having been measured
+double InternalHumidity = 0;
 
 // Global variables
-TMP102 _temp_sensor (0x48); // Default address initialization
-// When true, device sleeps and only takes measurements every ~5 minutes.
-// When false, device takes intervals every ~10 seconds (or 5 minutes depending on config)
-// and does not sleep. (primarily used for debugging).
+//Create Instance of HTU21D or SI7021 temp and humidity sensor and MPL3115A2 barrometric sensor
+Weather _sensor;
 bool _bLowPower = true; // enabled by default
 
 // Device name.
@@ -48,12 +47,15 @@ void setup()
         // Turn the LED on
         digitalWrite(PIN_boardLed,HIGH);
 
-        // Join the i2c network so we can configure the TMP102
-        _temp_sensor.begin ();
-        // set the Conversion Rate
-        //0-3: 0:0.25Hz, 1:1Hz, 2:4Hz, 3:8Hz
-        _temp_sensor.setConversionRate(3);
-        _temp_sensor.sleep();	// Switch sensor to low power mode
+
+
+        //Initialize the I2C sensors and ping them
+        if (!_sensor.begin())
+            {
+
+            }
+        // Disable the heater
+        _sensor.heaterOff();
 
         // Configure the Low Power pin
         pinMode(PIN_LowPowerEnable,INPUT_PULLUP); // Our on-board LED is output as well
@@ -80,32 +82,14 @@ void loop()
             {
                 // Turn the on-board LED on while we;re processing.
                 digitalWrite(PIN_boardLed, HIGH);
-                // Turn sensor on to start temperature measurement.
-                // Current consumtion typically ~10uA.
-                _temp_sensor.wakeup();	// Wakeup and start running in normal power mode
-                // Give the sensor time to wake up and do a couple of measurements before we ask for data.
-                // With 8hz rate, reading every 125ms, 250 should be safe.
-                delay(250);
-                // Correction factor due to sensor possibly being old/having drifted?
-                // Unable to use a consistent sensor correction factor. Drifing all over the place or am I using incorrectly?
-                const auto actual_f = _temp_sensor.readTempF();
 
-                std::vector<float> temp_readings;
-                for (char i = 0; i < 100; ++i)
-                    {
-                    temp_readings.push_back(_temp_sensor.readTempF());
-                    }
-                String LongFormat;
-                for (const auto& temp : temp_readings)
-                    {
-                    LongFormat += String::format("%f,",temp);
-                    }
+                // Measure Relative Humidity from the HTU21D or Si7021
+                InternalHumidity = _sensor.getRH() + 2;
+                // Measure Temperature from the HTU21D or Si7021
+                InternalTemperature = _sensor.readTempF() -6.75;
 
-                Particle.publish (String::format("%s::ReadTemps:",_me.c_str()),LongFormat,60,PUBLIC);
-                InternalTemperature = actual_f - 18;
-                _temp_sensor.sleep();	// Switch sensor to low power mode
-
-                Particle.publish("InternalTemperature", String(InternalTemperature),60,PUBLIC);
+                Particle.publish(String::format("%s::InternalTemperature", _me.c_str()), String(InternalTemperature),60,PUBLIC);
+                Particle.publish(String::format("%sInternalHumidity", _me.c_str()), String(InternalHumidity),60,PUBLIC);
 
                 // Make sure the LED stays on for at least 500ms
                 delay(250);
