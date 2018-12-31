@@ -29,6 +29,7 @@ bool _bLowPower = true; // enabled by default
 // TODO: Expose a function to set device config including name, etc. so that we can update these devices from the cloud.
 // Ultimately these settings should be from config and stored in EEPROM
 const String _me ("TestCore");
+const String _ver ("0.1.1");
 
 STARTUP(System.enableFeature(FEATURE_RESET_INFO));
 
@@ -72,8 +73,9 @@ void setup()
         // Publish that we've rebooted
         Particle.publish (String::format("%s::LastResetReason",_me.c_str()),String(System.resetReason()),60,PUBLIC);
         Particle.publish(String::format("%s::LowPowerMode",_me.c_str()),String(_bLowPower),60,PUBLIC);
-        Particle.publish(String::format("%s::FirmwareVer",_me.c_str()), "0.1.0",60,PUBLIC);
+        Particle.publish(String::format("%s::FirmwareVer",_me.c_str()), _ver.c_str(),60,PUBLIC);
         Particle.variable ("InsideTemp", InternalTemperature);
+        Particle.variable ("InsideHumid", InternalHumidity);
     }
 
 // Now for the loop.
@@ -87,7 +89,7 @@ void loop()
                 // Measure Relative Humidity from the HTU21D or Si7021
                 InternalHumidity = _sensor.getRH() + 2;
                 // Measure Temperature from the HTU21D or Si7021
-                InternalTemperature = _sensor.readTempF() -8.75;
+                InternalTemperature = _sensor.readTempF() -7.25;
 
                 Particle.publish(String::format("%s::InternalTemperature", _me.c_str()), String(InternalTemperature),60,PUBLIC);
                 Particle.publish(String::format("%s::InternalHumidity", _me.c_str()), String(InternalHumidity),60,PUBLIC);
