@@ -89,6 +89,7 @@ void loop()
                 // Measure Relative Humidity from the HTU21D or Si7021
                 InternalHumidity = _sensor.getRH() + 2;
                 // Measure Temperature from the HTU21D or Si7021
+          
                 InternalTemperature = _sensor.readTempF() -7.25;
 
                 Particle.publish(String::format("%s::InternalTemperature", _me.c_str()), String(InternalTemperature),60,PUBLIC);
