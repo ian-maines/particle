@@ -1,3 +1,5 @@
+#include "application.h"
+#line 1 "c:/workspaces/particle/MeshScratch/ScratchArgon/src/ScratchArgon.ino"
 // -----------------------------------------
 // Copyright 2018 Ian Maines
 // All Rights Reserved
@@ -11,6 +13,9 @@
 #include "SparkFun_Si7021_Breakout_Library.h"
 
 // Pin Configurations
+void setup();
+void loop();
+#line 14 "c:/workspaces/particle/MeshScratch/ScratchArgon/src/ScratchArgon.ino"
 int PIN_boardLed = D7; // On-board LED
 // Use D3 as low power enable mode. Set to ground to disable.
 // The goal is to not put the device to sleep when disabled so that firmware updates may be flashed.
@@ -28,8 +33,8 @@ bool _bLowPower = true; // enabled by default
 // Device name.
 // TODO: Expose a function to set device config including name, etc. so that we can update these devices from the cloud.
 // Ultimately these settings should be from config and stored in EEPROM
-const String _me ("TestCore");
-const String _ver ("0.1.1");
+const String _me ("TestArgon");
+const String _ver ("0.1.0");
 
 STARTUP(System.enableFeature(FEATURE_RESET_INFO));
 
