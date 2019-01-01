@@ -15,7 +15,6 @@
 // Pin Configurations
 void setup();
 void loop();
-#line 14 "c:/workspaces/particle/MeshScratch/ScratchArgon/src/ScratchArgon.ino"
 int PIN_boardLed = D7; // On-board LED
 // Use D3 as low power enable mode. Set to ground to disable.
 // The goal is to not put the device to sleep when disabled so that firmware updates may be flashed.
