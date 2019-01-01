@@ -5,7 +5,9 @@
         "files.associations": {
             "*.ino": "cpp"
         },
-        "particle.targetDevice": "bobcat_laser"
+        "particle.targetDevice": "bobcat_laser",
+        "particle.targetPlatform": "argon",
+        "particle.firmwareVersion": "0.8.0-rc.27", 
     },
     "folders": [
         {
