@@ -1,5 +1,3 @@
-#include "application.h"
-#line 1 "c:/workspaces/particle/MeshScratch/ScratchArgon/src/ScratchArgon.ino"
 // -----------------------------------------
 // Copyright 2018 Ian Maines
 // All Rights Reserved
@@ -14,6 +12,7 @@
 
 //My libs
 #include "timing.h"
+#include "debug.h"
 
 // Pin Configurations
 void setup();
