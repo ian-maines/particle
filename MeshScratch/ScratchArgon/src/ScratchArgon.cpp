@@ -87,6 +87,7 @@ void setup()
 // Now for the loop.
 void loop()
     {
+    util::CTiming timer (10 * 1000); // want 10 seconds
         if (Particle.connected())
             {
                 // Turn the on-board LED on while we;re processing.
@@ -101,7 +102,7 @@ void loop()
                 Particle.publish(String::format("%s::InternalHumidity", _me.c_str()), String(InternalHumidity),60,PUBLIC);
 
                 // Make sure the LED stays on for at least 500ms
-                delay(250);
+                ASSERT(timer.delay(250));
                 digitalWrite(PIN_boardLed, LOW);
             }
         // Depending on power mode config, delay or put the device to sleep for 4 minutes, 30 seconds.
@@ -114,6 +115,6 @@ void loop()
         else
             {
             // delay (((60*4)+30) * 1000);
-            delay (10 * 1000 - 250);  // Take measurements ~ every 10 seconds
+            ASSERT (timer.delay (10 * 1000 - 250));  // Take measurements ~ every 10 seconds
             }
     }
