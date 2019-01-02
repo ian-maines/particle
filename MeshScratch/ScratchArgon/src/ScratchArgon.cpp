@@ -12,6 +12,9 @@
 #include <Wire.h>
 #include "SparkFun_Si7021_Breakout_Library.h"
 
+//My libs
+#include "timing.h"
+
 // Pin Configurations
 void setup();
 void loop();
