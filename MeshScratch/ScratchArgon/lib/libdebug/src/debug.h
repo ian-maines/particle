@@ -52,6 +52,6 @@ void SetLogger (std::unique_ptr<debug::IDebugLogger>&& logger)
 
 
 #define ASSERT(cond) \
-do {if (cond) sizeof(int); else _logger->LogMsg(#cond);} while (true)
+do {if (cond;) sizeof(int); else _logger->LogMsg(String.format("ASSERT (%s) Failed at %u in %s", #cond, __LINE__, __FILE__);} while (true)
 
 #endif  // __LIBDEBUG_DEBUG_H__
