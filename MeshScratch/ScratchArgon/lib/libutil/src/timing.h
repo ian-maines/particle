@@ -6,7 +6,7 @@
 
 #include <cstdint>
 
-#include "debug.h"
+#include "echo_debug.h"
 
 namespace util
 {
@@ -24,7 +24,7 @@ namespace util
                 m_tracked_ms += ms;
                 if (m_tracked_ms <= m_total_ms)
                     {
-                    delay (ms);
+                    ::delay (ms);
                     return true;
                     }
                 return false;
@@ -35,7 +35,7 @@ namespace util
                 {
                 if (m_tracked_ms <= m_total_ms)
                     {
-                    delay (m_total_ms - m_tracked_ms);
+                    ::delay (m_total_ms - m_tracked_ms);
                     return true;
                     }
                 return false;

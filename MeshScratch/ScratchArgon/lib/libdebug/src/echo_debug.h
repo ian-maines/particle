@@ -37,21 +37,31 @@ class CCloudPublishLogger : public IDebugLogging
         const String m_name;
     };
 
-std::unique_ptr<IDebugLogging> _logger = std::make_unique<CCloudPublishLogger> ();
+std::unique_ptr<IDebugLogging> _logger (new CCloudPublishLogger ());
 }
 
 void InitializeLogger (const String& name)
     {
-    debug::_logger = std::make_unique<debug::CCloudPublishLogger> (name);
+    debug::_logger = std::move(std::unique_ptr<debug::IDebugLogging>(new debug::CCloudPublishLogger (name)));
     }
 
-void SetLogger (std::unique_ptr<debug::IDebugLogger>&& logger)
+void SetLogger (std::unique_ptr<debug::IDebugLogging>&& logger)
     {
     debug::_logger = std::move(logger);
     }
 
+#undef ASSERT
 
-#define ASSERT(cond) \
-do {if (cond;) sizeof(int); else _logger->LogMsg(String.format("ASSERT (%s) Failed at %u in %s", #cond, __LINE__, __FILE__);} while (true)
+#ifdef _DEBUG
+// FIXME: Get in impl file so we can hide some of this stuff.
+#define _ASSERT(cond) \
+do {if (!(cond)) debug::_logger->LogMsg(String::format("ASSERT (%s) Failed at %u in %s", (#cond), __LINE__, __FILE__));} while (false)
+
+#define _VERIFY(cond) _ASSERT(cond);
+#else
+#define _ASSERT(cond)
+#define _VERIFY(cond) cond;
+#endif
+
 
 #endif  // __LIBDEBUG_DEBUG_H__

@@ -5,6 +5,9 @@
 // This app reads temperature and humidity data from a Si7021 and publishes the data to the Particle cloud
 // (ie AWS IoT, IFTTT)
 
+// Enable debugging for now
+#define _DEBUG
+
 #include <vector>
 
 #include <Wire.h>
@@ -12,7 +15,7 @@
 
 //My libs
 #include "timing.h"
-#include "debug.h"
+#include "echo_debug.h"
 
 // Pin Configurations
 void setup();
@@ -35,7 +38,7 @@ bool _bLowPower = true; // enabled by default
 // TODO: Expose a function to set device config including name, etc. so that we can update these devices from the cloud.
 // Ultimately these settings should be from config and stored in EEPROM
 const String _me ("TestArgon");
-const String _ver ("0.1.0");
+const String _ver ("0.1.4");
 
 STARTUP(System.enableFeature(FEATURE_RESET_INFO));
 
@@ -102,19 +105,20 @@ void loop()
                 Particle.publish(String::format("%s::InternalHumidity", _me.c_str()), String(InternalHumidity),60,PUBLIC);
 
                 // Make sure the LED stays on for at least 500ms
-                ASSERT(timer.delay(250));
+                (timer.delay(250));
                 digitalWrite(PIN_boardLed, LOW);
             }
         // Depending on power mode config, delay or put the device to sleep for 4 minutes, 30 seconds.
         if (_bLowPower)
             {
             // Stay awake for another 30 seconds to round out to 5 minutes
-            delay((28 * 1000) + 500);
+            _ASSERT(timer.delay((28 * 1000) + 500));
+            // FIXME: Incorporate deep sleep
             Particle.sleep (SLEEP_MODE_DEEP, ((60*4)+30));
             }
         else
             {
             // delay (((60*4)+30) * 1000);
-            ASSERT (timer.delay (10 * 1000 - 250));  // Take measurements ~ every 10 seconds
+            _VERIFY(timer.finalize ());  // Take measurements ~ every 10 seconds
             }
     }
